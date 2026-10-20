@@ -1,0 +1,15 @@
+name: bench-pgvector
+services:
+  pgvector:
+    image: paradedb/paradedb:latest
+    container_name: bench-pgvector
+    ports: ["5432:5432"]
+    environment:
+      POSTGRES_PASSWORD: bench
+    cpus: "4"
+    mem_limit: 6g
+    shm_size: 1g
+    command: >
+      postgres -c shared_buffers=1536MB -c maintenance_work_mem=1GB
+      -c max_parallel_maintenance_workers=4 -c max_parallel_workers=8
+      -c effective_cache_size=4GB -c max_wal_size=4GB

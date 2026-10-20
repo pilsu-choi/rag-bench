@@ -1,0 +1,6 @@
+# Seal segments at ~1.8 GB instead of 12% of 1 GB, so 209k vectors land in ~1 segment
+# (one HNSW graph, like OpenSearch after force-merge). Default leaves ~10 segments of ~20k rows.
+dataCoord:
+  segment:
+    maxSize: 2048
+    sealProportion: 0.9
