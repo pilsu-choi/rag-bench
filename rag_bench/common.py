@@ -2,7 +2,8 @@
 import os, time
 import httpx, numpy as np, pandas as pd
 
-PGX = os.environ.get("PGX_HOST", "172.30.1.84")
+PGX = os.environ.get("PGX_HOST", "pgx")  # host serving the models; set PGX_HOST to its address
+LLM_URL = os.environ.get("LLM_URL", f"http://{PGX}:8000/v1/chat/completions")
 EMBED_URL = f"http://{PGX}:8001/v1/embeddings"
 RERANK_URL = f"http://{PGX}:8002/rerank"
 DATA = "data"

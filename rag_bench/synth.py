@@ -2,10 +2,10 @@
 
 The source chunk is the single relevant passage (qrels). Usage: python -m rag_bench.synth [--n 500]
 """
-import argparse, asyncio, os
+import argparse, asyncio
 import httpx, pandas as pd
+from rag_bench.common import LLM_URL
 
-LLM_URL = os.environ.get("LLM_URL", "http://172.30.1.84:8000/v1/chat/completions")
 PROMPT = """다음은 '{title}' 문서의 한 단락입니다.
 
 {text}

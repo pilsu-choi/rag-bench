@@ -11,7 +11,8 @@ application. It answers two separate questions:
 Embedding and reranking models are served on a DGX Spark-class machine (Lenovo PGX, GB10) with vLLM.
 The DBs run in Docker on a separate workstation with the same limits (4 CPU / 6 GB each), one at a time.
 
-Full results: [results/REPORT.md](results/REPORT.md) (run 2026-10-20).
+Full results: [results/REPORT.md](results/REPORT.md) (run 2026-10-20). How the work went, the decisions and the
+lessons are in the [wiki](wiki/index.md).
 
 ## Findings (2026-10-20 run)
 
@@ -23,7 +24,7 @@ Full results: [results/REPORT.md](results/REPORT.md) (run 2026-10-20).
 | Container memory after build, 209k vectors | (in-process) | 2.8 GiB | 3.4 GiB | 5.5 GiB (3 GiB JVM heap) |
 | Filtered recall at 1 % / 10 %, 209k vectors | 0.53 / 0.86 | 1.00 / 0.90 | 1.00 / 0.99 | 0.54 / 0.86 |
 | nDCG@10, hybrid + rerank, 209k vectors | 0.854 (dense + rerank) | 0.863 | 0.862 | 0.866 |
-| p95 of dense top-100 / BM25 top-100, 209k vectors | 1.3 ms / – | 67 ms / 162 ms | 8.9 ms / 4.9 ms | 6.9 ms / 6.6 ms |
+| p95 of dense top-100 / BM25 top-100, 209k vectors | 1.3 ms / – | 67 ms / 162 ms | 4.3 ms / 4.2 ms | 6.9 ms / 6.6 ms |
 
 - **Search quality barely depends on the store.** Dense nDCG@10 is the same everywhere (0.79 base,
   0.73 full). Korean BM25 is close across nori and lindera (0.81–0.82 base), and adding it through
@@ -61,10 +62,11 @@ Full results: [results/REPORT.md](results/REPORT.md) (run 2026-10-20).
 
 ```bash
 uv sync
+export PGX_HOST=<model host>              # vLLM: LLM :8000 (synth only), bge-m3 :8001, reranker :8002
 uv run python -m rag_bench.prep            # corpus: data/base.parquet, data/distractors.parquet
-uv run python -m rag_bench.synth --n 600   # needs an OpenAI-compatible LLM (LLM_URL)
+uv run python -m rag_bench.synth --n 600   # OpenAI-compatible LLM at $PGX_HOST:8000 (or LLM_URL)
 scp scripts/serve-retrieval.sh pgx: && ssh pgx bash serve-retrieval.sh   # bge-m3 :8001, reranker :8002
-uv run python -m rag_bench.embed_all       # data/emb_*.npy (PGX_HOST env overrides the host)
+uv run python -m rag_bench.embed_all       # data/emb_*.npy
 scripts/run-all.sh                         # every store × {base, full}; STORES="milvus" to pick
 uv run python -m rag_bench.report          # results/REPORT.md + results/ann_pareto.png
 ```
