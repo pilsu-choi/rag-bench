@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# WSL side: forward localhost:9200 to the PGX (ssh alias pgx) OpenSearch (loopback-only there) if not already open.
+# WSL side: forward OpenSearch (9200), Kev (8009) and Laya (8011) from the PGX (ssh alias pgx), all loopback-only there.
 set -euo pipefail
-curl -sf localhost:9200 >/dev/null 2>&1 && { echo "tunnel up"; exit 0; }
-ssh -fN -o ExitOnForwardFailure=yes -L 9200:localhost:9200 pgx
-echo "tunnel opened"
+for p in 9200 8009 8011; do
+  curl -s -o /dev/null -m 2 "localhost:$p" && continue
+  ssh -fN -o ExitOnForwardFailure=yes -L "$p:localhost:$p" pgx && echo "tunnel $p opened"
+done

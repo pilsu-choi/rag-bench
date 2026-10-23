@@ -33,3 +33,11 @@ if ! curl -sf localhost:9200 >/dev/null 2>&1; then
     --ulimit memlock=-1:-1 --ulimit nofile=65536:65536 bench-opensearch:3.9.0-nori >/dev/null
   wait_for agentic-opensearch localhost:9200
 fi
+# Decision models (not vLLM-servable), each in its own venv, loopback only; reach them with scripts/tunnel.sh.
+#   kev:  ~/agentic-venvs/kev  = github jaredpalmer/kev (commit 2074cc4) + torch 2.8.0+cu129, `pip install -e ".[serve]"`
+#   laya: ~/agentic-venvs/laya = torch 2.8.0+cu129, `pip install "laya[serve]"` (0.4.13)
+curl -sf localhost:8009/v1/models >/dev/null 2>&1 || (cd ~/kev-src && . ~/agentic-venvs/kev/bin/activate &&
+  nohup python -m kev.serve --run jaredpalmer/kev-4b@v1.0 --host 127.0.0.1 --port 8009 --device cuda > ~/kev.log 2>&1 < /dev/null &)
+curl -sf localhost:8011/health >/dev/null 2>&1 || (. ~/agentic-venvs/laya/bin/activate &&
+  LAYA_HOST=127.0.0.1 LAYA_PORT=8011 LAYA_DEVICE=cuda LAYA_MODELS=multilingual LAYA_DEFAULT_MODEL=multilingual \
+  nohup laya-serve > ~/laya.log 2>&1 < /dev/null &)
