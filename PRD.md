@@ -53,6 +53,9 @@ Oct 23, 2026 · @pilsu
 - **검색**: PGX의 OpenSearch(nori BM25와 faiss HNSW), bge-m3, bge-reranker-v2-m3
 - **답변 LLM**: Qwen3.8-27B-NVFP4(vLLM, tool calling 켬, thinking 끔, temperature 0). 모든 트랙이 같은 모델을 쓴다.
 - **모델 교체 규칙**: 처리 속도가 부족하면 OpenRouter로 바꿀 수 있다. 바꿀 때는 모든 트랙을 다시 돌린다. 로컬 결과와 OpenRouter 결과를 한 비교에 섞지 않는다.
+  - 2026-10-23에 실제로 바꿨다. 실행 모델은 OpenRouter `qwen/qwen3.8-27b`(공급자 DeepInfra bf16 고정, fallback 없음, thinking 끔)다.
+  - 이유: PGX의 NVFP4 Qwen이 동시 7요청에서 생성 처리량이 초당 약 17토큰에 그쳤다.
+  - 검색(bge-m3, reranker, OpenSearch)과 의사결정 모델(Laya, Kev-4B)은 PGX에 그대로 둔다.
 - **Hermes 실행 조건**: 질문마다 새 상태 디렉터리를 쓴다. 메모리, 스킬 생성, 세션 검색, 기본 내장 도구(웹 검색, 터미널, 파일)는 끈다.
 
 ## 의도 분류와 기대 동작
@@ -127,7 +130,10 @@ Oct 23, 2026 · @pilsu
 
 - `out_of_corpus` 질문은 BM25와 dense 상위 10개에 답이 없는지 Qwen으로 확인한 뒤 남긴다.
 - **ACL 세트(30개)**: 다른 tenant의 문서에만 답이 있는 `doc_qa` 질문이다. 올바른 동작은 거절이다.
-- **일관성 세트**: 평가셋에서 층화 추출한 50개를 트랙마다 3번씩 돌린다.
+- **소형 세트(`small`)**: Hermes 트랙(A1, A2)은 비용 때문에 의도별로 층화 추출한 본 평가 120개와 ACL 15개만 돈다(2026-10-23 결정).
+  - 의도별 개수: doc_qa 30, multi_doc 20, doc_calc 15, out_of_corpus 25, chitchat 15, calc 15
+  - 아키텍처 비교(A vs W)는 모든 트랙을 이 120개 기준으로 따로 집계한다.
+- **일관성 세트**: 소형 세트에서 층화 추출한 20개를 트랙마다 3번씩 돌린다.
 
 ## 지표
 

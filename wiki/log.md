@@ -79,4 +79,17 @@ Times are UTC. Each entry links to the page with the details.
   - One proxy tag mixed up concurrent jobs, so each track now gets its own proxy.
 
   B0, W-llm, A1 and A2 all answer correctly on smoke questions.
+- **04:00** The eval set has 410 rows: main 300, ACL 30, toolscale 80
+  ([evalset.py](../rag_bench/agentic/evalset.py)).
+- **04:05** At the owner's request, Kev-4B and Laya were started on the PGX loopback (ports 8009 and
+  8011, reached through an ssh tunnel). One decision takes about 0.3 s on Kev and about 0.05 s on Laya.
+- **04:15** Six tracks were launched on the local Qwen. Two problems:
+  - Only one Hermes gateway can run per host, so A1 and A2 cannot run at the same time.
+  - Generation throughput was about 17 tokens/s in total.
+
+  The runs were stopped
+  ([decision](decisions/2026-10-23-openrouter-and-subsets.md)).
+- **04:30** Switched the answer LLM to OpenRouter `qwen/qwen3.8-27b` (DeepInfra pinned, thinking off).
+  The owner chose plan B to stay near $2: the cheap tracks run the full set, and A1/A2 run the
+  120-question `small` subset. All tracks were re-launched, as was the tool sweep.
 
