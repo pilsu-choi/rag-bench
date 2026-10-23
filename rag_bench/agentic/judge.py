@@ -2,7 +2,8 @@
 
     uv run --extra agentic python -m rag_bench.agentic.judge <track> [--split main]
 
-- refusal expected (out_of_corpus, acl): correct iff the answer refuses
+- refusal expected (out_of_corpus, acl): correct iff the answer refuses (fixed phrase, or the LLM judge
+  says it declined without offering an answer)
 - calc / doc_calc: correct iff a number in the answer equals the reference (0.5 % tolerance)
 - chitchat: correct iff a non-empty reply that is not a refusal and used no retrieval
 - doc_qa / multi_doc: LLM judge against the reference answer; plus faithfulness to the passages the
@@ -28,6 +29,12 @@ PROMPT = """질문에 대한 시스템 답변을 채점하세요.
 {passages}
 
 시스템 답변: {answer}"""
+DECLINE = {"type": "object", "properties": {"declined": {"type": "boolean"}}, "required": ["declined"]}
+DECLINE_PROMPT = """아래 답변이 질문에 대한 사실 답을 내놓지 않고 "알 수 없다/찾을 수 없다/답할 수 없다"는 취지로 거절했으면
+declined=true, 어떤 형태로든 답(추측, 예시, 일반 지식 포함)을 제시했으면 false.
+
+질문: {question}
+답변: {answer}"""
 NUM = re.compile(r"-?\d[\d,]*\.?\d*")
 
 
@@ -41,14 +48,14 @@ def number_match(answer: str, ref: str) -> bool:
     return any(abs(g - want) <= max(abs(want) * 0.005, 1e-6) for g in got)
 
 
-def judge_llm(prompt):
+def judge_llm(prompt, schema=SCHEMA):
     url = os.environ.get("JUDGE_URL")
     if not url:
-        return llm.ask(prompt, schema=SCHEMA, max_tokens=64)
+        return llm.ask(prompt, schema=schema, max_tokens=64)
     r = httpx.post(url, timeout=300, headers={"authorization": f"Bearer {os.environ.get('JUDGE_KEY', '')}"},
                    json={"model": os.environ["JUDGE_MODEL"], "temperature": 0, "max_tokens": 64,
                          "messages": [{"role": "user", "content": prompt}],
-                         "response_format": {"type": "json_schema", "json_schema": {"name": "out", "schema": SCHEMA}}})
+                         "response_format": {"type": "json_schema", "json_schema": {"name": "out", "schema": schema}}})
     return json.loads(r.json()["choices"][0]["message"]["content"])
 
 
@@ -58,8 +65,9 @@ def score(row, res) -> dict:
     out = {"refused": refused(a), "n_retrieved": len(retrieved),
            "gold_hit": bool(set(row.gold_chunks) & set(retrieved)) if len(row.gold_chunks) else None,
            "gold_all": set(row.gold_chunks) <= set(retrieved) if len(row.gold_chunks) else None}
-    if row.split == "acl" or row.intent == "out_of_corpus":
-        out["correct"] = out["refused"]
+    if row.split == "acl" or row.intent == "out_of_corpus":  # agents refuse in their own words
+        out["correct"] = out["refused"] or judge_llm(DECLINE_PROMPT.format(question=row.question, answer=a),
+                                                     DECLINE)["declined"]
     elif row.intent in ("calc", "doc_calc"):
         out["correct"] = number_match(a, row.ref_answer)
     elif row.intent == "chitchat":

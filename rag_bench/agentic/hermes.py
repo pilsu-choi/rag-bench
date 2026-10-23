@@ -8,6 +8,7 @@ background daemon is restarted, because Hermes reads config and MCP servers only
 """
 import json, os, re, signal, subprocess, tempfile
 import yaml
+from rag_bench.agentic.catalog import REFUSAL
 from rag_bench.agentic.llm import PROXY
 from rag_bench.common import LLM_MODEL
 
@@ -15,6 +16,14 @@ BIN = os.environ.get("HERMES_BIN", "/home/pilsu/tools/hermes-agent/.venv/bin/her
 REPO = os.path.abspath(".")
 ENV_KEYS = ["PGX_HOST", "TENANT_LT", "RAG_DECIDER", "PROXY_URL", "KEV_URL", "LAYA_URL", "LLM_MODEL"]
 CHUNK = re.compile(r"\[(\d+#\d+)\]")
+# Operator policy appended to Hermes' own SOUL.md persona: the same answer rules the workflow uses.
+POLICY = f"""
+
+## Knowledge-base policy
+You answer questions for users of a Korean Wikipedia knowledge base. Reply in Korean.
+For factual questions, search the documents with the tools and answer only from what they return,
+citing the passages you used as [chunk_id] at the end of the sentence. If the documents do not
+contain the answer, reply exactly "{REFUSAL}". Small talk needs no tools."""
 _ready: set = set()
 
 
@@ -44,6 +53,11 @@ def home(track: str) -> str:
         if not os.path.exists(cfg) or open(cfg).read() != new:
             open(cfg, "w").write(new)
             stop(h)
+        soul = os.path.join(h, "SOUL.md")  # Hermes' default persona + our policy
+        default = open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(BIN))), "SOUL.md")).read()
+        if not os.path.exists(soul) or open(soul).read() != default + POLICY:
+            open(soul, "w").write(default + POLICY)
+            stop(h)
         _ready.add(h)
     return h
 
@@ -59,8 +73,8 @@ def stop(h: str):
 
 def run(question: str, track: str) -> dict:
     h = home(track)
-    with tempfile.TemporaryDirectory() as cwd:  # empty cwd: no AGENTS.md or rules get injected
-        p = subprocess.run([BIN, "--ignore-rules", "chat", "-Q", "--format", "stream-json", "--max-turns", "10",
+    with tempfile.TemporaryDirectory() as cwd:  # empty cwd: no AGENTS.md or other rules files to inject
+        p = subprocess.run([BIN, "chat", "-Q", "--format", "stream-json", "--max-turns", "10",
                             "-q", question], cwd=cwd, env=os.environ | {"HERMES_HOME": h},
                            capture_output=True, text=True, timeout=400)
     events = [json.loads(l) for l in p.stdout.splitlines() if l.startswith("{")]
