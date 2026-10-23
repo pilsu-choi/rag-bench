@@ -23,7 +23,7 @@ drops, llm_s = collections.Counter(), [0.0]
 def pmap(fn, items, workers=8):
     """Concurrent LLM calls; a failed call yields None."""
     def one(x):
-        for k in range(6):  # the LLM server may restart: back off and retry
+        for k in range(4):  # the LLM server may restart: back off and retry
             try:
                 return fn(x)
             except Exception:
@@ -138,14 +138,14 @@ def doc_calc(base, emb):
 - answer: 계산 결과 숫자만(단위 없이)
 - 두 단락의 숫자를 함께 쓰는 자연스러운 질문이 없으면 ok를 false로 할 것"""
     outs = pmap(lambda p: llm.ask(P.format(ta=base.title[p[0]], xa=base.text[p[0]], tb=base.title[p[1]], xb=base.text[p[1]]),
-                                  schema(question=STR, expression=STR, answer=STR, ok=BOOL), max_tokens=700), cand)
+                                  schema(question=STR, expression=STR, answer={"type": "number"}, ok=BOOL), max_tokens=400), cand)
     rows = []
     for (a, b), o in zip(cand, outs):
         if not (o and o["ok"]):
             drops["doc_calc: llm not ok/failed"] += 1
             continue
         try:
-            got, want = float(calculator(o["expression"])), float(o["answer"].replace(",", ""))
+            got, want = float(calculator(o["expression"])), float(o["answer"])
         except ValueError:
             drops["doc_calc: calculator/answer mismatch"] += 1
             continue
@@ -275,14 +275,16 @@ def calc():
 
 
 def toolscale():
-    P = "회사 직원이 업무 도구 '{k}'({d})를 써야만 해결되는 요청을 한국어로 {n}개 만드세요.\n서로 다른 상황과 말투로, 구체적인 날짜·이름·번호 같은 세부 정보를 넣어 자연스럽게. 다른 도구가 아니라 이 도구가 필요한 요청이어야 합니다."
+    P = "회사 직원이 사내 비서에게 보내는 요청 중, '{d}' 기능이 있어야만 해결되는 것을 한국어로 {n}개 만드세요.\n- 직원 본인이 비서에게 직접 말하는 한두 문장 (받는 사람 호칭이나 인사말 없이)\n- 서로 다른 상황과 말투, 구체적인 날짜·이름·번호 등 세부 정보 포함\n- 도구 이름이나 '도구', '기능', 'API' 같은 말은 쓰지 말 것"
     items = list(C.DISTRACTOR_TOOLS.items())
-    out = pmap(lambda kd: listing(P.format(k=kd[0], d=kd[1], n=8)), items)
+    out = pmap(lambda kd: listing(P.format(d=kd[1], n=14)), items)
     rows = []
     for (k, _), x in zip(items, out):
-        qs = list(dict.fromkeys(q.strip() for q in x or []))
-        drops["toolscale: over quota/short"] += len(qs) - N["per_tool"] if len(qs) >= N["per_tool"] else N["per_tool"] - len(qs)
-        rows += [row("toolscale", k, q, [], "", k) for q in qs[: N["per_tool"]]]
+        qs = list(dict.fromkeys(re.sub(r"^[^,.?!]{1,15}[님씨],\s*", "", q.strip()) for q in x or []))  # drop leaked addressee
+        good = [q for q in qs if len(q) <= 150 and not re.search(r"placeholder|도구|API|" + k, q)]
+        drops["toolscale: filtered (long/tool name/placeholder)"] += len(qs) - len(good)
+        drops["toolscale: over quota"] += max(0, len(good) - N["per_tool"])
+        rows += [row("toolscale", k, q, [], "", k) for q in good[: N["per_tool"]]]
     return rows
 
 
