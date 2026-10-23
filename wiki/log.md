@@ -58,4 +58,25 @@ Times are UTC. Each entry links to the page with the details.
   - bringing up the PGX stack (Qwen with tool calling, embed, rerank, OpenSearch)
   - a Hermes headless and isolation check
   - a Laya and Kev check
+- **03:10** The Laya and Kev check was done on CPU with 6 questions (directional only). Kev
+  (`jaredpalmer/kev-*`, a LoRA plus a pointer head on Qwen3.5-Base, with its own server) got 6/6
+  intents. Laya (`convaiinnovations/laya`, multilingual checkpoint) got 3/6 and was overconfident when
+  wrong. Neither model can be served by vLLM.
+- **03:20** The Hermes check passed on a mock LLM: it runs headless, with isolated state, stream-json
+  traces and our MCP tools only.
+- **03:30** The PGX stack is up:
+  - Qwen3.8-27B-NVFP4 with the `qwen3_coder` tool parser
+  - bge-m3 and the reranker
+  - OpenSearch 3.9 with nori on loopback only
+
+  All 9,069 chunks are indexed. Starting the Kev server on the PGX was blocked by the session's
+  permission check, so it waits for the owner.
+- **03:40** Hermes smoke runs against the real Qwen found four problems
+  ([lesson](lessons/2026-10-23-hermes-and-qwen-serving.md)):
+  - Hermes needs at least 64k context, so Qwen was restarted with 65,536.
+  - `--ignore-rules` dropped the operator policy in SOUL.md, so the flag is no longer used.
+  - Hermes streams its requests, so the proxy now relays SSE.
+  - One proxy tag mixed up concurrent jobs, so each track now gets its own proxy.
+
+  B0, W-llm, A1 and A2 all answer correctly on smoke questions.
 
