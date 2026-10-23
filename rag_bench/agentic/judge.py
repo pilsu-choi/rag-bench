@@ -9,7 +9,7 @@
 - doc_qa / multi_doc: LLM judge against the reference answer; plus faithfulness to the passages the
   track retrieved, and whether it cites a [chunk_id]
 The judge is the same LLM behind the proxy (tagged "judge"); JUDGE_URL/JUDGE_MODEL/JUDGE_KEY switch it
-to another endpoint for the cross-check.
+to another endpoint for the cross-check (`--cross 50`).
 """
 import argparse, json, os, re
 import httpx, pandas as pd
@@ -53,10 +53,15 @@ def judge_llm(prompt, schema=SCHEMA):
     if not url:
         return llm.ask(prompt, schema=schema, max_tokens=64)
     r = httpx.post(url, timeout=300, headers={"authorization": f"Bearer {os.environ.get('JUDGE_KEY', '')}"},
-                   json={"model": os.environ["JUDGE_MODEL"], "temperature": 0, "max_tokens": 64,
+                   json={"model": os.environ["JUDGE_MODEL"], "temperature": 0, "max_tokens": 400,
                          "messages": [{"role": "user", "content": prompt}],
                          "response_format": {"type": "json_schema", "json_schema": {"name": "out", "schema": schema}}})
-    return json.loads(r.json()["choices"][0]["message"]["content"])
+    for _ in range(3):  # occasional empty content from the provider
+        content = r.json()["choices"][0]["message"].get("content")
+        if content:
+            return json.loads(content)
+        r = httpx.post(url, timeout=300, headers=r.request.headers, content=r.request.content)
+    raise RuntimeError(f"judge returned no content: {r.json()['choices'][0]}")
 
 
 def score(row, res) -> dict:
@@ -80,11 +85,42 @@ def score(row, res) -> dict:
     return out
 
 
+def crosscheck(n: int):
+    """Re-judge n LLM-judged answers (sampled across tracks) with the JUDGE_* model -> agreement with Qwen."""
+    ev = pd.read_parquet(EVAL).set_index("qid")
+    rows = []
+    for track in sorted(os.listdir("results/agentic")):
+        f = f"results/agentic/{track}/main.judged.jsonl"
+        if os.path.exists(f):
+            res = {r["qid"]: r for r in map(json.loads, open(f"results/agentic/{track}/main.jsonl"))}
+            rows += [(track, j, res[j["qid"]]) for j in map(json.loads, open(f)) if "faithful" in j]
+    out = []
+    for i in pd.Series(range(len(rows))).sample(n, random_state=0):
+        track, j, res = rows[i]
+        row = ev.loc[j["qid"]]
+        try:
+            k = judge_llm(PROMPT.format(question=row.question, ref=row.ref_answer, answer=res.get("answer") or "",
+                                        passages=res.get("passages") or "(없음)"))
+        except (RuntimeError, ValueError) as e:  # counted as skipped, not as disagreement
+            print(track, j["qid"], str(e)[:200])
+            continue
+        out.append({"track": track, "qid": j["qid"], "qwen": j["correct"],
+                    "other": k["correct"] and not j["refused"], "qwen_faithful": j["faithful"], "other_faithful": k["faithful"]})
+    with open("results/agentic/judge_crosscheck.jsonl", "w") as f:
+        f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in out)
+    d = pd.DataFrame(out)
+    print(f"correct agreement {(d.qwen == d.other).mean():.3f}, faithful agreement "
+          f"{(d.qwen_faithful == d.other_faithful).mean():.3f}, qwen acc {d.qwen.mean():.3f} vs other {d.other.mean():.3f}")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("track")
+    ap.add_argument("track", nargs="?")
     ap.add_argument("--split", default="main")
+    ap.add_argument("--cross", type=int, help="cross-check N judgments with JUDGE_URL/JUDGE_MODEL/JUDGE_KEY")
     a = ap.parse_args()
+    if a.cross:
+        return crosscheck(a.cross)
     ev = pd.read_parquet(EVAL).set_index("qid")
     src, dst = f"results/agentic/{a.track}/{a.split}.jsonl", f"results/agentic/{a.track}/{a.split}.judged.jsonl"
     done = {(r["qid"], r["rep"]) for r in map(json.loads, open(dst))} if os.path.exists(dst) else set()

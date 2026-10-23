@@ -43,5 +43,9 @@ The design and the reasons for it are in [benchmark design](decisions/2026-10-20
   its own or as a cascade in front of the LLM, and whether that is worth shipping.
 - The spec is [PRD.md](../PRD.md) and the reasoning is in the
   [Part 2 design](decisions/2026-10-23-agentic-rag-design.md).
-- **Status:** M0 is in progress (PGX serving stack, plus feasibility checks of Hermes, Laya and Kev).
+- **Status (2026-10-23):** all tracks were run on OpenRouter for about $3.3. See the
+  [results](research/2026-10-23-agentic-results.md) and the
+  [recommendations](decisions/2026-10-23-recommendations.md). In short, A1 (Hermes with search tools)
+  was the most accurate at 0.85 but ungrounded and 10× costlier. A2 inherited a weak RAG layer. Kev-4B
+  routes as well as the LLM but fails as a yes/no gate. Laya is NO-GO.
 

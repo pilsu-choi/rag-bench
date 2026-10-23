@@ -92,4 +92,13 @@ Times are UTC. Each entry links to the page with the details.
 - **04:30** Switched the answer LLM to OpenRouter `qwen/qwen3.8-27b` (DeepInfra pinned, thinking off).
   The owner chose plan B to stay near $2: the cheap tracks run the full set, and A1/A2 run the
   120-question `small` subset. All tracks were re-launched, as was the tool sweep.
+- **05:30** The B0 and W tracks finished in about 15 minutes, and so did the tool sweep. From the
+  offline cascade curve, τ was set to 0.5 for Kev and 0.7 for Laya, and both cascade tracks were run.
+  Laya sent two questions down the calc path, which broke the expression JSON; that now counts as a
+  wrong answer, not a crash.
+- **06:20** A1 and A2 finished on the 120-question subset. Two A1 runs hit Hermes' 10-turn limit
+  while searching for absent facts; these count as real results.
+- **06:30** Claude Haiku 5.5 re-judged 43 answers; it agreed on correctness 43 of 43 times. Wrote the
+  [results](research/2026-10-23-agentic-results.md) and
+  [recommendations](decisions/2026-10-23-recommendations.md). The total spend was about $3.3.
 

@@ -1,6 +1,6 @@
 # rag-bench
 
-Retrieval-only benchmark of **FAISS, pgvector (ParadeDB), Milvus and OpenSearch** for a Korean RAG
+Two benchmarks on one Korean RAG corpus. **Part 1** (below): a retrieval-only benchmark of **FAISS, pgvector (ParadeDB), Milvus and OpenSearch** for a Korean RAG
 application. It answers two separate questions:
 
 1. **ANN engine**: at the same HNSW settings and recall, which store is faster and lighter?
@@ -13,6 +13,10 @@ The DBs run in Docker on a separate workstation with the same limits (4 CPU / 6 
 
 Full results: [results/REPORT.md](results/REPORT.md) (run 2026-10-20). How the work went, the decisions and the
 lessons are in the [wiki](wiki/index.md).
+
+**Part 2** ([PRD.md](PRD.md), [results](results/agentic/REPORT.md), run 2026-10-23) puts agents on top. It asks
+whether a general agent runtime (Hermes Agent) with retrieval tools beats a RAG-specific workflow, and whether
+decision models (Laya, Kev) can replace LLM tool calling for tool selection. See [Part 2](#part-2-agentic-rag).
 
 ## Findings (2026-10-20 run)
 
@@ -110,3 +114,52 @@ docker/                    one compose file per DB
   recall ≥ 0.95 is not affected. `bench.py` now warms up with every query at ef=512.
 - **Synthetic qrels** mark exactly one relevant chunk per query. Other chunks that also answer the
   question count as misses, so absolute scores are pessimistic. Compare relative differences.
+
+## Part 2: agentic RAG
+
+Eight tracks on the same corpus, retriever (OpenSearch on the PGX: nori BM25, bge-m3, bge-reranker-v2-m3) and
+answer model (OpenRouter `qwen/qwen3.8-27b`, DeepInfra pinned, thinking off). Only the decision-maker or the
+architecture changes. The eval set has 300 main questions over six intents (doc_qa, multi_doc, doc_calc,
+out_of_corpus, chitchat, calc), 30 ACL questions, 80 distractor-tool questions and a 20 × 3 consistency set.
+The Hermes tracks run a stratified 120-question subset to keep the cost near $2; the whole run cost about $3.3.
+
+| Track | What decides | 120-q accuracy | Refuses unanswerable | Input tokens/q | p50 |
+| --- | --- | --- | --- | --- | --- |
+| B0 | nothing: always hybrid+rerank → answer | 0.575 | 1.00 | 1.6k | 2.2 s |
+| W-llm | RAG workflow, Qwen decides intent / mode / sufficiency | 0.800 | 1.00 | 2.5k | 4.7 s |
+| W-kev / W-laya | same workflow, Kev-4B / Laya decide | 0.642 / 0.375 | 1.00 / 0.48 | 0.8k / 1.0k | 3.1 / 1.1 s |
+| A1 | Hermes Agent with search tools over MCP | **0.850** | 0.72 | 24.9k | 17.5 s |
+| A2 | Hermes Agent with one RAG-layer tool (W-llm inside) | 0.775 | 0.92 | 18.4k | 15.9 s |
+
+- **The agent wins multi-step questions but is ungrounded and costly.** A1 scored 0.80 on multi_doc (W-llm 0.60)
+  and 0.53 on doc_calc (W-llm 0.40). It also answered 28% of questions it should have refused, used 10× the
+  tokens and had a p95 near 2 minutes.
+- **A2's quality is its RAG layer's quality.** The LLM mode router picked bm25 96% of the time and the
+  sufficiency gate refused 22% of answerable questions. A2 inherited both.
+  Recommendation: an agent runtime plus a RAG layer that always runs hybrid+rerank and gates on reranker scores
+  ([recommendations](wiki/decisions/2026-10-23-recommendations.md)).
+- **Kev-4B routes like the LLM; Laya does not.** Intent macro-F1 is 0.79 for Kev, 0.74 for Qwen and 0.21 for
+  Laya. Tool choice is about 0.82 for Kev from 4 to 20 tools, 0.79–0.84 for Qwen native tool calling and
+  0.50 → 0.26 for Laya. Kev's yes/no sufficiency is badly calibrated (52% false refusals), so W-kev ends at
+  0.66 end to end against 0.78 for W-llm. Verdict: Laya NO-GO; Kev conditional GO as a first-stage router
+  with LLM fallback, not as a gate.
+- **Qwen picking a label as JSON beat native tool calling** for tool selection (0.93–0.96 against 0.79–0.84)
+  and was 3–4× faster.
+
+Run it (see [AGENTS.md](AGENTS.md) for the rules and `scripts/serve-agentic.sh` for the PGX side):
+
+```bash
+uv sync --extra agentic
+ssh pgx bash serve-agentic.sh && scripts/tunnel.sh   # Qwen/embed/rerank/OpenSearch/Kev/Laya; loopback + ssh tunnel
+export PGX_HOST=<model host> LLM_URL=https://openrouter.ai/api/v1/chat/completions \
+       LLM_MODEL=qwen/qwen3.8-27b LLM_KEY=<key> OR_PROVIDER=deepinfra
+uv run --extra agentic python -m rag_bench.agentic.evalset           # data/agentic_eval.parquet
+WORKERS=4 scripts/run-agentic.sh w-llm 8111                          # one track: run + judge (main acl consistency)
+SMALL=1 WORKERS=3 scripts/run-agentic.sh a1 8121                     # Hermes tracks on the 120-q subset, one at a time
+uv run --extra agentic python -m rag_bench.agentic.toolsel kev       # tool-selection sweep (4/10/20 tools)
+uv run --extra agentic python -m rag_bench.agentic.report            # results/agentic/REPORT.md
+```
+
+Hermes Agent is installed outside the repo (NousResearch/hermes-agent at `bf0203a`, Python 3.14, `[mcp]`).
+Gotchas are in [the Hermes lesson](wiki/lessons/2026-10-23-hermes-and-qwen-serving.md).
+
