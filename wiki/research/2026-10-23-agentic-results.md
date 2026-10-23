@@ -27,7 +27,7 @@ Run conditions:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | B0, always hybrid+rerank | 0.575 | 0.93 | 0.55 | 0.33 | 1.00 | 0.15 | 2.2 s | 1.6k |
 | W-llm, RAG workflow | 0.800 | 0.77 | 0.60 | 0.40 | 1.00 | 0.22 | 4.7 s | 2.5k |
-| A1, Hermes + search tools | **0.850** | 0.93 | **0.80** | **0.53** | **0.72** | 0.02 | 17.5 s | **24.9k** |
+| A1, Hermes + search tools | **0.850** | 0.93 | **0.80** | **0.53** | **0.80** | 0.02 | 17.5 s | **24.9k** |
 | A2, Hermes + RAG layer (W-llm inside) | 0.775 | 0.70 | 0.60 | 0.47 | 0.92 | 0.20 | 15.9 s | 18.4k |
 
 Notes on reading the table:
@@ -36,7 +36,9 @@ Notes on reading the table:
 - With 120 questions the margin is about ±9 pp, so only large gaps count.
 - Latencies were measured with 3–4 questions in flight over the network, so read them as relative.
 
-**What the agent does better.** A1 wins on questions that take several steps:
+**What the agent does better.** A1 wins on questions that take several steps. These leads rest on 4 of 20
+multi_doc and 2 of 15 doc_calc questions, so they are directional. A spot check of the doc_calc answers
+marked correct shows the computed number is the stated answer, not a stray match.
 
 - **multi_doc:** 0.80, against 0.60 for W-llm.
 - **doc_calc:** 0.53, against 0.40.
@@ -46,13 +48,18 @@ Notes on reading the table:
 
 **What the workflow does better: grounding, cost and predictability.**
 
-- **Refusals.** A1 answered 28% of the questions it should have refused (out_of_corpus). It gave
-  opinions ("가장 좋아하는 색은 파란색"), guessed, or answered from its own knowledge with a citation that
-  does not support the answer: E=mc² was cited to a chunk about atomic-clock time-dilation
-  experiments. W-llm and B0 refused 100%.
-- **ACL set.** A1 answered 5 of 15 questions that the user may not see. The workflow tracks answered
-  2–6 of 30. The gold chunk was never retrieved in any track, because the filter is injected by the
-  tool server. These answers come from other chunks or from the model's own knowledge.
+- **Refusals.** A1 failed to refuse 5 of 25 unanswerable questions; W-llm and B0 refused all of them.
+  - Two were opinion questions it answered with a persona: a favourite book genre, and a favourite
+    colour ("파란색"). The labels count these as out_of_corpus, but they are close to chitchat.
+  - One was a typhoon-odds question it answered from loosely related passages.
+  - One was a fact answered from the model's own knowledge with a citation that does not support it:
+    E=mc² cited to a chunk about atomic-clock time-dilation experiments. This is the clearest grounding
+    failure.
+  - One ran out of its 10 turns without an answer.
+- **ACL set.** The gold chunk was never retrieved in any track, because the filter is injected by the
+  tool server. Some tracks still answered (A1 5/15, A2 3/15, W-llm 3/30, B0 6/30). Tenants are random per
+  chunk, so these answers may come from accessible chunks of the same article. They were not verified,
+  so no leak claim is made.
 - **Cost and stability.** A1 used 10× the input tokens of W-llm and was 3.7× slower at p50. Its p95
   was 119 s, and 2 runs hit the 10-turn limit while searching for something absent.
 
@@ -64,7 +71,7 @@ decisions hurt document questions:
 2. **Sufficiency gate.** It refused 22% of answerable doc questions.
 
 A2 inherited both flaws (doc_qa 0.70) and added Hermes' cost (18k tokens per question, 16 s). It did
-keep the grounding benefit: it refused 92% of unanswerable questions, against 72% for A1. A2 with a
+keep the grounding benefit: it refused 92% of unanswerable questions, against 80% for A1. A2 with a
 better layer (always hybrid+rerank, calibrated gate) was not run; see next steps.
 
 ## Decision models: Laya and Kev in place of LLM decisions (300 questions)
@@ -97,9 +104,16 @@ answer itself.
   calling. It does this with one LLM call per question instead of 3.2, and 64% fewer input tokens.
   The cascade (Kev when p ≥ 0.5, else the LLM) reaches 0.81 intent accuracy while Kev handles 68% of
   questions.
-- **Kev loses end to end because of the yes/no sufficiency decision.** Its probability of "yes" is
-  low even when the gold passage is retrieved, so it refuses 52% of answerable doc questions. Routing
-  is not the problem; the binary gate is uncalibrated.
+- **Kev loses end to end mostly because of the yes/no sufficiency decision.** There are 45 doc
+  questions that W-llm got right and W-kev got wrong. The first failing step was:
+  - the gate saying "no": 27 (60%)
+  - sending the question to out_of_corpus: 10
+  - the wrong document intent, such as multi_doc taken as doc_qa: 7
+  - a wrong answer: 1
+
+  Kev's "yes" probability stays low even with the gold passage retrieved. In the cascade, a yes/no
+  answer reports the chosen label's probability, which is always ≥ 0.5, so at τ=0.5 the gate never
+  falls back to the LLM. The W-cascade-kev row is therefore Kev's gate plus cascaded routing.
 - **Laya does not work for Korean routing.** Its intent accuracy is 0.21; most document questions
   were labelled out_of_corpus. Tool accuracy falls from 0.50 to 0.26 as tools are added, and it is
   overconfident (ECE 0.34). It is fast (about 50 ms), but that does not help here.
@@ -108,8 +122,10 @@ answer itself.
 
 ## Reliability of these numbers
 
-- **The judge holds up.** Claude Haiku 5.5 re-judged 43 Qwen-judged answers and agreed on correctness
-  43 of 43 times. Faithfulness agreed 77% of the time.
+- **The judge holds up on correctness.** Claude Haiku 5.5 re-judged 43 Qwen-judged answers. On the 31
+  that were not refusals (refusals score false for both judges by construction), it agreed 31 of 31
+  times. Faithfulness agreed only 77% of the time, so differences in the `faithful` column (0.92–0.96)
+  are within judge noise.
 - **Single run.** Consistency across 3 repeats was 0.85–1.0, lowest for A2 at 0.85.
 - **Eval-set caveats:**
   - The reference answers were written by an LLM.

@@ -54,7 +54,7 @@ def main_table(ev, calls, qids=None):
         rows[t] = {"accuracy": m.correct.mean(), "p50 ms": m.ms.median(), "p95 ms": m.ms.quantile(.95),
                    "gold hit (doc)": doc.gold_hit.mean(), "faithful": m.get("faithful", pd.Series()).mean(),
                    "false refusal (doc)": doc.refused.mean(),
-                   "refusal (ooc)": m[m.intent == "out_of_corpus"].refused.mean(),
+                   "refusal (ooc)": m[m.intent == "out_of_corpus"].correct.mean(),  # fixed phrase or judged decline
                    **llm_cost(calls, t, "main", qids)}
         if "pred_intent" in m:
             rows[t]["intent macro-F1"] = f1_score(m.intent, m.pred_intent.fillna("none"), average="macro")

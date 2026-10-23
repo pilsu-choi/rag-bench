@@ -20,14 +20,15 @@ the alternatives (H3 not met).**
 
 - **The agent handles multi-step questions better.** A1 led on multi_doc (0.80 against 0.60) and
   doc_calc (0.53 against 0.40). A fixed workflow needs extra branches for every new question shape.
-- **A bare agent with search tools is not safe for an enterprise RAG product.**
-  - It answered 28% of questions it should have refused, sometimes with a citation that does not
-    support the answer.
-  - It answered 5 of 15 ACL questions from other sources.
-  - It used 10× the tokens of the workflow, ran 3.7× slower at p50, had a p95 near 2 minutes, and
+- **A bare agent with search tools is hard to control for an enterprise RAG product.**
+  - It failed to refuse 5 of 25 unanswerable questions, where the workflow refused all of them. Two
+    were persona answers to opinion questions. One was a fact from the model's own knowledge with a
+    citation that does not support it (E=mc²).
+  - It used 10× the tokens of the workflow, ran 3.7× slower at p50 and had a p95 near 2 minutes. It
     sometimes looped until the turn limit.
+  - Its multi-step gains rest on a few questions (4 of 20 and 2 of 15), so they are directional.
 - **A2 shows that the layer decides the quality.** A2 was the proposed shape. It kept most of the
-  grounding (it refused 92% of unanswerable questions, against 72% for A1), but it inherited the
+  grounding (it refused 92% of unanswerable questions, against 80% for A1), but it inherited the
   layer's flaws:
   - LLM mode routing chose bm25 96% of the time.
   - An over-strict sufficiency gate made it refuse answerable questions.
@@ -62,7 +63,11 @@ By the PRD's rules (H4–H7), **neither is a GO as configured.**
 - **Cascade:** it only helps when the LLM handles most questions anyway.
 - **Speed:** about 50 ms, which does not make up for this in a Korean product.
 
-### Kev-4B: conditional GO for routing only
+### Kev-4B: NO-GO as configured; routing-only use looks promising, pending a re-test
+
+By the pre-registered rules Kev fails both GO (H4 end to end, H5 latency) and conditional GO (H6: ECE
+0.21 against ≤0.1, 68% handled against ≥70%, cascade end to end 0.66 against 0.78). The routing-only
+reading below was formed after seeing the results, so it needs the re-test before it counts.
 
 What works:
 
@@ -76,12 +81,14 @@ What works:
 
 What fails:
 
-- **End-to-end accuracy.** It is 0.66 against 0.78 (H4 not met). Almost all of the loss is the yes/no
-  sufficiency question: Kev refuses 52% of answerable doc questions.
+- **End-to-end accuracy.** It is 0.66 against 0.78 (H4 not met). There are 45 doc questions W-llm got
+  right and W-kev got wrong. The yes/no gate caused 27 of them (60%); Kev refuses 52% of answerable doc
+  questions. Routing caused the other 17: 10 sent to out_of_corpus, 7 with the wrong document intent.
+  Fixing the gate alone would therefore not close the whole gap.
 - **The latency target.** At 0.22–0.28 s it misses H5's 50 ms, though it is still 3× faster than the
   LLM as a classifier and about 10× faster than native tool calling.
 
-**Product advice.**
+**Product advice, if the re-test confirms it.**
 
 - Use Kev-4B as the first-stage intent and tool router, with the LLM as a fallback below a confidence
   threshold. Calibrate the threshold per deployment on a few hundred labelled questions.

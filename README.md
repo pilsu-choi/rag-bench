@@ -127,22 +127,24 @@ The Hermes tracks run a stratified 120-question subset to keep the cost near $2;
 | --- | --- | --- | --- | --- | --- |
 | B0 | nothing: always hybrid+rerank → answer | 0.575 | 1.00 | 1.6k | 2.2 s |
 | W-llm | RAG workflow, Qwen decides intent / mode / sufficiency | 0.800 | 1.00 | 2.5k | 4.7 s |
-| W-kev / W-laya | same workflow, Kev-4B / Laya decide | 0.642 / 0.375 | 1.00 / 0.48 | 0.8k / 1.0k | 3.1 / 1.1 s |
-| A1 | Hermes Agent with search tools over MCP | **0.850** | 0.72 | 24.9k | 17.5 s |
+| W-kev / W-laya | same workflow, Kev-4B / Laya decide | 0.642 / 0.375 | 1.00 / 0.76 | 0.8k / 1.0k | 3.1 / 1.1 s |
+| A1 | Hermes Agent with search tools over MCP | **0.850** | 0.80 | 24.9k | 17.5 s |
 | A2 | Hermes Agent with one RAG-layer tool (W-llm inside) | 0.775 | 0.92 | 18.4k | 15.9 s |
 
-- **The agent wins multi-step questions but is ungrounded and costly.** A1 scored 0.80 on multi_doc (W-llm 0.60)
-  and 0.53 on doc_calc (W-llm 0.40). It also answered 28% of questions it should have refused, used 10× the
-  tokens and had a p95 near 2 minutes.
+- **The agent leads on multi-step questions but is harder to control and costly.** A1 scored 0.80 on multi_doc
+  (W-llm 0.60) and 0.53 on doc_calc (W-llm 0.40). Both leads are directional (4 and 2 questions). It failed to
+  refuse 5 of 25 unanswerable questions, one of them a fact from model knowledge with an unsupported citation.
+  It used 10× the tokens and had a p95 near 2 minutes.
 - **A2's quality is its RAG layer's quality.** The LLM mode router picked bm25 96% of the time and the
   sufficiency gate refused 22% of answerable questions. A2 inherited both.
   Recommendation: an agent runtime plus a RAG layer that always runs hybrid+rerank and gates on reranker scores
   ([recommendations](wiki/decisions/2026-10-23-recommendations.md)).
 - **Kev-4B routes like the LLM; Laya does not.** Intent macro-F1 is 0.79 for Kev, 0.74 for Qwen and 0.21 for
   Laya. Tool choice is about 0.82 for Kev from 4 to 20 tools, 0.79–0.84 for Qwen native tool calling and
-  0.50 → 0.26 for Laya. Kev's yes/no sufficiency is badly calibrated (52% false refusals), so W-kev ends at
-  0.66 end to end against 0.78 for W-llm. Verdict: Laya NO-GO; Kev conditional GO as a first-stage router
-  with LLM fallback, not as a gate.
+  0.50 → 0.26 for Laya. W-kev ends at 0.66 end to end against 0.78 for W-llm. 60% of the gap is Kev's
+  yes/no sufficiency gate (52% false refusals) and the rest is routing. Verdict by the PRD rules: Laya NO-GO;
+  Kev NO-GO as configured. Kev as a first-stage router with LLM fallback looks promising, pending a re-test
+  with a reranker-score gate.
 - **Qwen picking a label as JSON beat native tool calling** for tool selection (0.93–0.96 against 0.79–0.84)
   and was 3–4× faster.
 

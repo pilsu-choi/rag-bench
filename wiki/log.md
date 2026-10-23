@@ -102,3 +102,8 @@ Times are UTC. Each entry links to the page with the details.
   [results](research/2026-10-23-agentic-results.md) and
   [recommendations](decisions/2026-10-23-recommendations.md). The total spend was about $3.3.
 
+
+## 2026-10-23 — post-hoc corrections
+- A1 refusal rate corrected to 0.80 (5/25, semantic judge); breakdown added. ACL "answered" counts marked unverified, leak claim dropped.
+- Kev verdict changed to NO-GO as configured (routing-only pending a gate re-test); loss breakdown 27 gate / 10 ooc misroute / 7 wrong intent; cascade yes/no prob ≥0.5 quirk noted.
+- Judge cross-check restated on the 31 non-refused items (31/31); faithfulness agreement 77%.
