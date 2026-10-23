@@ -4,6 +4,7 @@ import httpx, numpy as np, pandas as pd
 
 PGX = os.environ.get("PGX_HOST", "pgx")  # host serving the models; set PGX_HOST to its address
 LLM_URL = os.environ.get("LLM_URL", f"http://{PGX}:8000/v1/chat/completions")
+LLM_MODEL = os.environ.get("LLM_MODEL", "qwen3.8-27b")  # served name, or an OpenRouter model id
 EMBED_URL = f"http://{PGX}:8001/v1/embeddings"
 RERANK_URL = f"http://{PGX}:8002/rerank"
 DATA = "data"
