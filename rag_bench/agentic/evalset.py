@@ -11,7 +11,8 @@ import collections, random, re, time
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np, pandas as pd
 from rag_bench.agentic import catalog as C, llm
-from rag_bench.agentic.tools import bm25, calculator, dense
+from rag_bench.agentic.tools import _os, bm25, calculator, dense
+from rag_bench.stores.opensearch import IDX
 from rag_bench.common import load, vectors
 
 SEED, OUT = 0, "data/agentic_eval.parquet"
@@ -22,11 +23,11 @@ drops, llm_s = collections.Counter(), [0.0]
 def pmap(fn, items, workers=8):
     """Concurrent LLM calls; a failed call yields None."""
     def one(x):
-        for _ in range(2):
+        for k in range(6):  # the LLM server may restart: back off and retry
             try:
                 return fn(x)
             except Exception:
-                pass
+                time.sleep(10 * k)
     t = time.time()
     with ThreadPoolExecutor(workers) as ex:
         out = list(ex.map(one, items))
@@ -174,7 +175,19 @@ def listing(prompt):
     return llm.ask(prompt, ITEMS, max_tokens=1500)["items"]
 
 
+def wait_index(n=9069):
+    """Block until the OpenSearch index is fully built (the retrieval check needs it)."""
+    while True:
+        try:
+            if _os.count(index=IDX)["count"] >= n:
+                return
+        except Exception:
+            pass
+        time.sleep(30)
+
+
 def out_of_corpus(base):
+    wait_index(len(base))
     P = "한국어로 AI 비서에게 묻는 다음 유형의 질문을 서로 다르게 {n}개 만드세요.\n유형: {t}\n실시간 시세, 날씨, 코드, 뉴스, 환율, 택배 관련 질문은 제외합니다."
     g = pmap(lambda t: listing(P.format(n=12, t=t)), GENERIC)
     generic = list(dict.fromkeys(q.strip() for x in g if x for q in x))
@@ -291,7 +304,7 @@ def main():
     llm.tag(track="evalset")
     rows = []
     for name, f in [("doc_qa+acl", lambda: doc_qa(base, queries)), ("multi_doc", lambda: multi_doc(base, emb)), ("doc_calc", lambda: doc_calc(base, emb)),
-                    ("out_of_corpus", lambda: out_of_corpus(base)), ("chitchat", chitchat), ("calc", calc), ("toolscale", toolscale)]:
+                    ("chitchat", chitchat), ("calc", calc), ("toolscale", toolscale), ("out_of_corpus", lambda: out_of_corpus(base))]:
         t = time.time()
         rows += (r := f())
         print(f"{name}: {len(r)} rows ({time.time() - t:.0f}s)", flush=True)

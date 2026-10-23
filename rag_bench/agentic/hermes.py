@@ -28,6 +28,7 @@ def config(track: str) -> dict:
             "cwd": REPO, "env": env, "tools": {"resources": False, "prompts": False}}},
         "memory": {"memory_enabled": False, "user_profile_enabled": False, "nudge_interval": 0},
         "skills": {"creation_nudge_interval": 0},
+        "agent": {"run_budget_seconds": 300},
         "platform_toolsets": {"cli": ["docsearch"]},
         "tools": {"tool_search": {"enabled": "off"}},
         "auxiliary": {"title_generation": {"enabled": False}},
@@ -60,7 +61,7 @@ def run(question: str, track: str) -> dict:
     h = home(track)
     with tempfile.TemporaryDirectory() as cwd:  # empty cwd: no AGENTS.md or rules get injected
         p = subprocess.run([BIN, "--ignore-rules", "chat", "-Q", "--format", "stream-json", "--max-turns", "10",
-                            "--run-budget", "300", "-q", question], cwd=cwd, env=os.environ | {"HERMES_HOME": h},
+                            "-q", question], cwd=cwd, env=os.environ | {"HERMES_HOME": h},
                            capture_output=True, text=True, timeout=400)
     events = [json.loads(l) for l in p.stdout.splitlines() if l.startswith("{")]
     calls = [{"step": "tool", "name": e["name"].split("__")[-1], "input": e.get("input")}
