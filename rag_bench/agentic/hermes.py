@@ -92,6 +92,8 @@ def run(question: str, track: str) -> dict:
     retrieved = list(dict.fromkeys(CHUNK.findall("\n".join(outputs))))
     out = {"answer": answer.strip(), "steps": calls, "retrieved": retrieved, "passages": "\n\n".join(outputs),
            "hermes": {k: final.get(k) for k in ("exit_code", "tokens", "duration_ms")}}
-    if p.returncode or not events:
+    if not events:  # harness failure (re-run on resume); a run that hit max turns is a real result
         out["error"] = (p.stderr or p.stdout)[-500:]
+    elif p.returncode:
+        out["hermes"]["failed"] = (p.stderr or p.stdout)[-300:]
     return out

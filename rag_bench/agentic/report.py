@@ -8,7 +8,7 @@ from sklearn.metrics import f1_score
 from rag_bench.agentic.run import EVAL
 
 R = "results/agentic"
-TRACKS = ["b0", "w-llm", "w-laya", "w-kev", "w-cascade-laya-0.9", "w-cascade-kev-0.8", "a1", "a2"]
+TRACKS = ["b0", "w-llm", "w-laya", "w-kev", "w-cascade-laya-0.7", "w-cascade-kev-0.5", "a1", "a2"]
 
 
 def jl(path):
@@ -66,8 +66,8 @@ def decisions(track):
     res = jl(f"{R}/{track}/main.jsonl")
     if not len(res):
         return pd.DataFrame()
-    d = res.apply(lambda r: next((s for s in r.steps if s["step"] == "intent"), {}), axis=1).apply(pd.Series)
-    return pd.concat([res[["qid"]], d[["label", "prob", "ms"]]], axis=1).set_index("qid")
+    d = res.apply(lambda r: next((s for s in (r.steps if isinstance(r.steps, list) else []) if s["step"] == "intent"), {}), axis=1).apply(pd.Series)
+    return pd.concat([res[["qid"]], d.reindex(columns=["label", "prob", "ms"])], axis=1).dropna().set_index("qid")
 
 
 def cascade_curve(ev, model):
@@ -114,7 +114,9 @@ def toolsel():
         d = jl(f)
         name = os.path.basename(f)[:-6]
         for n, g in d.groupby("n_tools"):
-            rows[(name, n)] = {"accuracy": (g.gold == g.pred).mean(), "p50 ms": g.ms.median(), "questions": len(g)}
+            lenient = g.gold.replace("refuse", "no_tool") == g.pred.replace("refuse", "no_tool")
+            rows[(name, n)] = {"accuracy": (g.gold == g.pred).mean(), "refuse=no_tool": lenient.mean(),
+                               "p50 ms": g.ms.median(), "questions": len(g)}
     return pd.DataFrame(rows).T
 
 
@@ -133,11 +135,16 @@ def main():
              "## Accuracy by intent\n", md(by_intent),
              "## Same 120-question subset for every track (architecture comparison)\n", md(small), md(small_intent),
              "## ACL set (answer only from another tenant; correct = refusal)\n",
-             md(side_table("acl", lambda d: {"leak (answered)": 1 - d.correct.mean(), "questions": len(d)})),
+             "The filter is injected by the tool server, so the gold chunk should never be retrieved. Other chunks of\n"
+             "the same article can carry tenants < 50, so an answer is not necessarily a leak.\n\n",
+             md(side_table("acl", lambda d: {"gold chunk retrieved": d.gold_hit.mean(), "answered": 1 - d.correct.mean(),
+                                             "questions": len(d)})),
              "## Consistency (3 runs)\n", md(side_table("consistency", consistency)),
              "## Tool selection by number of tools\n", md(toolsel())]
     for m in ["laya", "kev"]:
-        parts += [f"## Cascade on intent: {m} → LLM\n", f"ECE: {ece(ev, m)}\n\n", md(cascade_curve(ev, m))]
+        parts += [f"## Cascade on intent: {m} → LLM (offline, from the W-{m} and W-llm runs)\n",
+                  f"ECE of the intent decision: {ece(ev, m):.3f}. τ for the W-cascade track was picked from this "
+                  "same curve, so its gain is optimistic.\n\n", md(cascade_curve(ev, m))]
     open(f"{R}/REPORT.md", "w").write("\n".join(parts))
     print(open(f"{R}/REPORT.md").read())
 

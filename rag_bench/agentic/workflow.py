@@ -56,7 +56,10 @@ class Trace:
 
 
 def calc(question, context=""):
-    expr = llm.ask(EXPR_PROMPT.format(context=context, question=question), schema=EXPR, max_tokens=128)["expression"]
+    try:
+        expr = llm.ask(EXPR_PROMPT.format(context=context, question=question), schema=EXPR, max_tokens=128)["expression"]
+    except ValueError as e:  # truncated JSON when the question is not arithmetic at all (a misroute)
+        return "", f"error: {e}"
     return expr, tools.calculator(expr)
 
 
