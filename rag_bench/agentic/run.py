@@ -41,7 +41,11 @@ def main():
         os.environ["TENANT_LT"] = "50"
     out = f"results/agentic/{a.track}/{a.split}.jsonl"
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    done = {(r["qid"], r["rep"]) for r in map(json.loads, open(out))} if os.path.exists(out) else set()
+    kept = [r for r in map(json.loads, open(out)) if "error" not in r] if os.path.exists(out) else []
+    if os.path.exists(out):  # failed questions are re-run on resume
+        with open(out, "w") as f:
+            f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in kept)
+    done = {(r["qid"], r["rep"]) for r in kept}
     solve = solver(a.track)
     for rep in range(reps):
         for r in rows.itertuples():

@@ -6,7 +6,7 @@ title generation and every built-in toolset are off, and each `-q` call is a new
 do not see each other. The LLM is reached through the logging proxy. When the config changes, the
 background daemon is restarted, because Hermes reads config and MCP servers only at daemon start.
 """
-import json, os, re, signal, subprocess, tempfile
+import glob, json, os, re, signal, subprocess, tempfile
 import yaml
 from rag_bench.agentic.catalog import REFUSAL
 from rag_bench.agentic.llm import PROXY
@@ -47,6 +47,9 @@ def config(track: str) -> dict:
 def home(track: str) -> str:
     h = os.path.abspath(f"results/agentic/.hermes/{track}-tenant{os.environ.get('TENANT_LT', 'all')}")
     if h not in _ready:
+        for other in glob.glob(os.path.join(os.path.dirname(h), "*")):  # one Hermes gateway per host
+            if other != h:
+                stop(other)
         os.makedirs(h, exist_ok=True)
         cfg = os.path.join(h, "config.yaml")
         new = yaml.safe_dump(config(track), allow_unicode=True)
