@@ -42,3 +42,20 @@ Times are UTC. Each entry links to the page with the details.
   `bench.py` now warms up with every query. This run was not repeated ([issues](issues/index.md)).
 - **09:15** Moved the model host address out of the code and into `PGX_HOST`, wrote this wiki,
   created the GitHub repo and pushed `dev` ([runbook](runbooks/2026-10-20-run-benchmark.md)).
+
+## 2026-10-23
+
+- **01:50** Started Part 2: agentic RAG evaluation. The owner wants answers to two questions. First,
+  general agent runtime (Hermes Agent) with retrieval tools vs a RAG-specific workflow, and whether
+  "agent runtime with a RAG layer" fits an enterprise product. Second, whether decision models (Laya,
+  Kev) can replace LLM tool calling for tool selection well enough to ship. Agreed with the owner:
+  - keep the work in this repo
+  - use OpenSearch on the PGX as the only store
+  - answer with Qwen3.8-27B-NVFP4 (OpenRouter allowed if too slow)
+  - use the Part 1 Korean corpus
+- **02:30** Wrote [PRD.md](../PRD.md), [AGENTS.md](../AGENTS.md) and the
+  [Part 2 design](decisions/2026-10-23-agentic-rag-design.md). Three sub-agents started in parallel:
+  - bringing up the PGX stack (Qwen with tool calling, embed, rerank, OpenSearch)
+  - a Hermes headless and isolation check
+  - a Laya and Kev check
+
