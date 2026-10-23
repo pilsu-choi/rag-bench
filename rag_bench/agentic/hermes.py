@@ -6,7 +6,7 @@ title generation and every built-in toolset are off, and each `-q` call is a new
 do not see each other. The LLM is reached through the logging proxy. When the config changes, the
 background daemon is restarted, because Hermes reads config and MCP servers only at daemon start.
 """
-import glob, json, os, re, signal, subprocess, tempfile
+import glob, json, os, re, signal, subprocess, tempfile, threading
 import yaml
 from rag_bench.agentic.catalog import REFUSAL
 from rag_bench.agentic.llm import PROXY
@@ -25,6 +25,7 @@ For factual questions, search the documents with the tools and answer only from 
 citing the passages you used as [chunk_id] at the end of the sentence. If the documents do not
 contain the answer, reply exactly "{REFUSAL}". Small talk needs no tools."""
 _ready: set = set()
+_lock = threading.Lock()
 
 
 def config(track: str) -> dict:
@@ -75,7 +76,8 @@ def stop(h: str):
 
 
 def run(question: str, track: str) -> dict:
-    h = home(track)
+    with _lock:
+        h = home(track)
     with tempfile.TemporaryDirectory() as cwd:  # empty cwd: no AGENTS.md or other rules files to inject
         p = subprocess.run([BIN, "chat", "-Q", "--format", "stream-json", "--max-turns", "10",
                             "-q", question], cwd=cwd, env=os.environ | {"HERMES_HOME": h},

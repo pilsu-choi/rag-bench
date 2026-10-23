@@ -2,12 +2,12 @@
 
     uv run --extra agentic python -m rag_bench.agentic.proxy &          # logging proxy, 127.0.0.1:8100
     bash scripts/tunnel.sh                                              # OpenSearch (out_of_corpus check)
-    uv run --extra agentic python -m rag_bench.agentic.evalset
+    uv run --extra agentic python -m rag_bench.agentic.evalset             # or --subsets: re-draw small/consistency only
 
 Qwen (via the proxy, temperature 0, concurrency 8) writes questions and reference answers; sampling is seeded.
 Rows dropped by filters are counted and printed at the end.
 """
-import collections, random, re, time
+import collections, random, re, sys, time
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np, pandas as pd
 from rag_bench.agentic import catalog as C, llm
@@ -289,16 +289,32 @@ def toolscale():
 
 
 # ---------- assemble ----------
-def stratify(df, total=50, floor=5):
-    """Consistency flags: proportional by intent over main rows, at least `floor` each."""
-    cnt = df[df.split == "main"].intent.value_counts()
+SMALL = {"doc_qa": 30, "multi_doc": 20, "doc_calc": 15, "out_of_corpus": 25, "chitchat": 15, "calc": 15, "acl": 15}
+
+
+def stratify(df, pool, total, floor):
+    """Flags `total` rows of `pool`, proportional by intent (and gold_tool), at least `floor` per stratum."""
+    key = df.intent + "/" + df.gold_tool
+    cnt = key[pool].value_counts()
     k = {i: max(floor, round(total * c / cnt.sum())) for i, c in cnt.items()}
     while sum(k.values()) != total:  # trim or pad the largest stratum
         k[max(k, key=k.get)] += 1 if sum(k.values()) < total else -1
     flag = set()
     for i, n in k.items():
-        flag |= set(df[(df.split == "main") & (df.intent == i)].sample(n, random_state=SEED).index)
+        flag |= set(df[pool & (key == i)].sample(n, random_state=SEED).index)
     return df.index.isin(flag)
+
+
+def subsets(df):
+    """`small`: the 120 main + 15 acl rows that the expensive Hermes tracks (A1, A2) run on.
+    `consistency`: 20 of the small main rows, re-run 3 times by every track."""
+    small = set()
+    for name, n in SMALL.items():
+        pool = (df.split == "acl") if name == "acl" else (df.split == "main") & (df.intent == name)
+        small |= set(df.index[stratify(df, pool, n, 1)])
+    df["small"] = df.index.isin(small)
+    df["consistency"] = stratify(df, df.small & (df.split == "main"), 20, 2)
+    return df
 
 
 def main():
@@ -312,8 +328,7 @@ def main():
         print(f"{name}: {len(r)} rows ({time.time() - t:.0f}s)", flush=True)
     df = pd.DataFrame(rows)
     df["qid"] = [f"{('acl' if s == 'acl' else i)}-{n:03d}" for s, i, n in zip(df.split, df.intent, df.groupby(["split", "intent"]).cumcount() + 1)]
-    df["consistency"] = stratify(df)
-    df = df[["qid", "split", "intent", "question", "gold_chunks", "ref_answer", "gold_tool", "consistency"]]
+    df = subsets(df)[["qid", "split", "intent", "question", "gold_chunks", "ref_answer", "gold_tool", "small", "consistency"]]
     assert df.qid.is_unique
     df.to_parquet(OUT)
     print(df.groupby(["split", "intent"]).size().to_string(), f"\nconsistency={int(df.consistency.sum())}  total={len(df)}")
@@ -325,4 +340,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:] == ["--subsets"]:  # re-draw the subsets of an existing eval set without the LLM
+        df = subsets(pd.read_parquet(OUT))
+        df.to_parquet(OUT)
+        print(df[df.small].groupby(["split", "intent"]).size().to_string(), f"\nconsistency={int(df.consistency.sum())}")
+    else:
+        main()

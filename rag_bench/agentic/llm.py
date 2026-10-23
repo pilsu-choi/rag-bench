@@ -1,5 +1,5 @@
 """Chat client for the in-house tracks. Every call goes through the logging proxy (rag_bench.agentic.proxy)."""
-import json, os
+import json, os, time
 import httpx
 from rag_bench.common import LLM_MODEL
 
@@ -19,9 +19,12 @@ def chat(messages: list[dict], tools: list[dict] | None = None, schema: dict | N
         body["tools"] = tools
     if schema:
         body["response_format"] = {"type": "json_schema", "json_schema": {"name": "out", "schema": schema}}
-    r = _http.post(f"{PROXY}/v1/chat/completions", json=body)
-    r.raise_for_status()
-    return r.json()["choices"][0]["message"]
+    for attempt in range(5):  # rate limits and provider hiccups
+        r = _http.post(f"{PROXY}/v1/chat/completions", json=body)
+        if r.status_code == 200 and r.json().get("choices"):
+            return r.json()["choices"][0]["message"]
+        time.sleep(2 ** attempt)
+    raise RuntimeError(f"LLM failed: {r.status_code} {r.text[:300]}")
 
 
 def ask(prompt: str, schema: dict | None = None, max_tokens=512, system: str | None = None):

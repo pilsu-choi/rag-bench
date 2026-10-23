@@ -13,10 +13,13 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response, StreamingResponse
 from starlette.routing import Route
-from rag_bench.common import LLM_URL
+from rag_bench.common import LLM_MODEL, LLM_URL
 
 UPSTREAM = LLM_URL.split("/v1/")[0] + "/v1"
 KEY = os.environ.get("LLM_KEY", "")
+# OpenRouter: pin one provider (no fallbacks) so every track hits the same backend; thinking off.
+OR_EXTRA = {"provider": {"order": [os.environ["OR_PROVIDER"]], "allow_fallbacks": False},
+            "reasoning": {"enabled": False}} if os.environ.get("OR_PROVIDER") else {}
 LOG = "results/agentic/llm_calls.jsonl"
 tag: dict = {}
 client = httpx.AsyncClient(timeout=600)
@@ -53,6 +56,7 @@ async def forward(req: Request):
     inp = json.loads(body) if chat else {}
     if chat:  # every track runs with thinking off; Hermes sends reasoning_effort by default
         inp.pop("reasoning_effort", None)
+        inp |= {"model": LLM_MODEL} | OR_EXTRA
         body = json.dumps(inp).encode()
     t = time.perf_counter()
     if chat and inp.get("stream"):
