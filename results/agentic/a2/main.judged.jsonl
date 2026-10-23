@@ -1,0 +1,120 @@
+{"qid": "doc_qa-007", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-003", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-008", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-004", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-009", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-017", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-025", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-023", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-027", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-031", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-034", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-044", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-046", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-014", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 14, "gold_hit": true, "gold_all": true, "correct": false, "faithful": true, "cited": true}
+{"qid": "doc_qa-054", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-049", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-055", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-056", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-063", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-072", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-076", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-079", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-074", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-083", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-087", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-093", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": false, "cited": false}
+{"qid": "doc_qa-094", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_qa-096", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-003", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 11, "gold_hit": true, "gold_all": false, "correct": true, "faithful": false, "cited": true}
+{"qid": "doc_qa-077", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 14, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "doc_qa-100", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-009", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-005", "rep": 0, "intent": "multi_doc", "refused": true, "n_retrieved": 5, "gold_hit": true, "gold_all": false, "correct": false, "faithful": true, "cited": true}
+{"qid": "multi_doc-011", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 8, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-016", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 9, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-019", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-017", "rep": 0, "intent": "multi_doc", "refused": true, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": false, "faithful": false, "cited": true}
+{"qid": "multi_doc-021", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": false, "faithful": true, "cited": true}
+{"qid": "multi_doc-012", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 25, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-023", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-026", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-028", "rep": 0, "intent": "multi_doc", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "multi_doc-029", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 15, "gold_hit": true, "gold_all": false, "correct": false, "faithful": true, "cited": true}
+{"qid": "multi_doc-030", "rep": 0, "intent": "multi_doc", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "multi_doc-035", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": false, "gold_all": false, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-036", "rep": 0, "intent": "multi_doc", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false, "faithful": true, "cited": false}
+{"qid": "multi_doc-031", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 5, "gold_hit": true, "gold_all": false, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-037", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 9, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "multi_doc-040", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true, "faithful": true, "cited": true}
+{"qid": "doc_calc-006", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 9, "gold_hit": true, "gold_all": true, "correct": true}
+{"qid": "doc_calc-003", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true}
+{"qid": "doc_calc-011", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": false}
+{"qid": "doc_calc-012", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": true}
+{"qid": "multi_doc-038", "rep": 0, "intent": "multi_doc", "refused": false, "n_retrieved": 31, "gold_hit": true, "gold_all": true, "correct": false, "faithful": false, "cited": true}
+{"qid": "doc_calc-009", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 28, "gold_hit": true, "gold_all": false, "correct": false}
+{"qid": "doc_calc-015", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": false}
+{"qid": "doc_calc-017", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": false, "correct": false}
+{"qid": "doc_calc-018", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": true, "correct": false}
+{"qid": "doc_calc-014", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 13, "gold_hit": true, "gold_all": true, "correct": false}
+{"qid": "doc_calc-024", "rep": 0, "intent": "doc_calc", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": false}
+{"qid": "doc_calc-025", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": false, "correct": true}
+{"qid": "doc_calc-023", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 14, "gold_hit": true, "gold_all": true, "correct": false}
+{"qid": "doc_calc-027", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 8, "gold_hit": true, "gold_all": true, "correct": true}
+{"qid": "chitchat-003", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-005", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-011", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-012", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "doc_calc-029", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 10, "gold_hit": true, "gold_all": false, "correct": true}
+{"qid": "chitchat-016", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-021", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-019", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-023", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "doc_calc-028", "rep": 0, "intent": "doc_calc", "refused": false, "n_retrieved": 14, "gold_hit": true, "gold_all": true, "correct": true}
+{"qid": "chitchat-028", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-026", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-029", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-030", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-040", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-003", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-036", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "chitchat-038", "rep": 0, "intent": "chitchat", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-011", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-005", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-012", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-016", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-019", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-021", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-023", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-029", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-028", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-026", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-036", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-038", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-040", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-002", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-003", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "calc-030", "rep": 0, "intent": "calc", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-012", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-011", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-014", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-017", "rep": 0, "intent": "out_of_corpus", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-018", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-020", "rep": 0, "intent": "out_of_corpus", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-006", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-015", "rep": 0, "intent": "out_of_corpus", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": false}
+{"qid": "out_of_corpus-024", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-023", "rep": 0, "intent": "out_of_corpus", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-025", "rep": 0, "intent": "out_of_corpus", "refused": false, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": false}
+{"qid": "out_of_corpus-028", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 8, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-027", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 5, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-031", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 8, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-037", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 8, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-040", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-036", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 12, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-042", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 5, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-045", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 11, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-043", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 0, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-048", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 5, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-049", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 5, "gold_hit": null, "gold_all": null, "correct": true}
+{"qid": "out_of_corpus-050", "rep": 0, "intent": "out_of_corpus", "refused": true, "n_retrieved": 8, "gold_hit": null, "gold_all": null, "correct": true}

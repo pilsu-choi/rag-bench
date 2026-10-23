@@ -17,3 +17,8 @@ timestamp: 2026-10-20T09:15:00Z
 | 5 | pgvector top-100 and BM25 slow at 209k (p95 67 / 162 ms) | Real, but untuned (`shared_buffers` 1.5 GB, `halfvec` unused) | Try `halfvec`, more memory, pgvectorscale |
 | 6 | Single run, workstation client on WSL2 | No error bars | Repeat 3× and report the spread |
 | 7 | The owner's real documents have not been run | Results are for Wikipedia text | Swap the input in `prep.py` |
+| 8 | A2 used W-llm as its RAG layer, which picks bm25 96% of the time and over-refuses | A2's verdict is pessimistic | Re-run A2 with an always-hybrid layer and a reranker-score gate (about $0.8) |
+| 9 | Kev's yes/no sufficiency probability is low even with the gold passage retrieved | W-kev end-to-end is 0.66 against 0.78 | Calibrate the threshold or replace the gate with the reranker score; re-run W-kev |
+| 10 | Some out_of_corpus entity questions are about famous facts | They inflate "hallucination" for agents | Shorten or replace them with obscure entities |
+| 11 | Latency was measured with 3–8 questions in flight on OpenRouter | Absolute latencies are not product numbers | Measure a 30-question sample at concurrency 1 |
+

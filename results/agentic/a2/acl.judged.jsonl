@@ -1,0 +1,15 @@
+{"qid": "acl-003", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-009", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 0, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-006", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 6, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-012", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 9, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-014", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-017", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 8, "gold_hit": false, "gold_all": false, "correct": false}
+{"qid": "acl-011", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 6, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-015", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 17, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-023", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 14, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-018", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-024", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 10, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-028", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": false}
+{"qid": "acl-025", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-029", "rep": 0, "intent": "doc_qa", "refused": true, "n_retrieved": 5, "gold_hit": false, "gold_all": false, "correct": true}
+{"qid": "acl-027", "rep": 0, "intent": "doc_qa", "refused": false, "n_retrieved": 23, "gold_hit": false, "gold_all": false, "correct": false}

@@ -2,3 +2,5 @@ data/
 .venv/
 __pycache__/
 results/*.log
+results/agentic/.hermes/
+results/agentic/llm_calls.jsonl
